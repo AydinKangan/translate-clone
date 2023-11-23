@@ -1,16 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { languages } from '$lib';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	let translation: string = '';
-	export let data: any;
-
-	$: {
-		if (data) {
-			console.log(data);
-		}
-	}
+	let loading: boolean = false;
 
 	const handleSubmit = async (event: Event) => {
+		loading = true;
 		event.preventDefault();
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
@@ -25,7 +21,6 @@
 				const result = await response.json();
 				const jsonData = JSON.parse(result.data);
 				const resultString = jsonData[0];
-				console.log(resultString)
 				translation = resultString;
 			} else {
 				console.error('Translation request failed');
@@ -33,6 +28,7 @@
 		} catch (error) {
 			console.error('Error during translation request', error);
 		}
+		loading = false;
 	};
 </script>
 
@@ -45,13 +41,39 @@
 					class="box textarea h-full w-full p-3"
 					rows="4"
 					placeholder="Enter translation."
-					name="translation"
+					name="text"
 				></textarea>
 			</div>
 		</label>
 
+		<div class="flex flex-row justify-between mt-4">
+			<label class="label w-[45%]">
+				<span>From</span>
+				<select class="select" name="from">
+					{#each languages as language}
+						<option value={language.code}>{language.language}</option>
+					{/each}
+				</select>
+			</label>
+
+			<label class="label w-[45%]">
+				<span>To</span>
+				<select class="select" name="to">
+					{#each languages as language}
+						<option value={language.code}>{language.language}</option>
+					{/each}
+				</select>
+			</label>
+		</div>
+
 		<div class="flex justify-end pt-[2rem]">
-			<button type="submit" class="bg-primary-500 text-white p-3 rounded-md">Translate</button>
+			{#if loading}
+				<div class="btn-icon">
+					<ProgressRadial />
+				</div>
+			{:else}
+				<button type="submit" class="bg-primary-500 text-white p-3 rounded-md">Translate</button>
+			{/if}
 		</div>
 	</form>
 

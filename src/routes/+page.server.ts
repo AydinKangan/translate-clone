@@ -2,13 +2,14 @@ import type { Actions } from '@sveltejs/kit';
 import { X_RAPID_API_KEY } from '$env/static/private';
 
 type Note = {
-	translation: string;
+	text: string;
+	from: string;
+	to: string;
 };
 
 export const actions = {
 	translate: async ({ request }) => {
 		const data = Object.fromEntries(await request.formData()) as Note;
-		console.log(data.translation);
 
 		const url = 'https://google-translate113.p.rapidapi.com/api/v1/translator/text';
 
@@ -21,9 +22,9 @@ export const actions = {
 				'X-RapidAPI-Host': 'google-translate113.p.rapidapi.com'
 			},
 			body: new URLSearchParams({
-				from: 'auto',
-				to: 'tr',
-				text: data.translation
+				from: data.from,
+				to: data.to,
+				text: data.text
 			})
 		};
 
